@@ -30,7 +30,7 @@ export const THEMES = {
     name: 'Piratenmeer',
     emoji: '🏴‍☠️',
     tagline: 'Klettere den Mast hoch',
-    ready: false, // Szene folgt in Schritt 2
+    ready: true,
     rewardName: 'Goldmünze',
     rewardEmoji: '🪙',
     sky: [

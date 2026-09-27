@@ -15,8 +15,10 @@
     "smoke": "esbuild scripts/smoke-entry.jsx --bundle --platform=node --format=esm --jsx=automatic --external:react* --outfile=scripts/.smoke.mjs --log-level=warning && node scripts/.smoke.mjs"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.18.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

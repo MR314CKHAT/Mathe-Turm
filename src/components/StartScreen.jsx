@@ -1,6 +1,7 @@
 import { GRADES, OPS, allowedOps } from '../utils/mathTasks.js';
 import { getHighscore } from '../utils/storage.js';
-import { themeList } from '../utils/theme.js';
+import { themeList, themeOf } from '../utils/theme.js';
+import Preview3D from '../three/Preview3D.jsx';
 
 const TOTAL_PRESETS = [3, 5, 10];
 const PER_TASK_PRESETS = [0, 10, 20, 30];
@@ -56,7 +57,7 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
       <div className="card">
         <header className="hero">
           <span className="hero__emoji" aria-hidden="true">
-            🏢
+            {themeOf(settings.theme).emoji}
           </span>
           <div>
             <h1 className="hero__title">Mathe-Turm</h1>
@@ -65,6 +66,9 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
             </p>
           </div>
         </header>
+
+        {/* 3D-Vorschau der gewählten Welt (Kamera umkreist sie langsam) */}
+        <Preview3D theme={settings.theme} />
 
         <section className="block">
           <h2 className="block__title">

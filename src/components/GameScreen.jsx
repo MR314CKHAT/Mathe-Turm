@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Tower from './Tower.jsx';
+import Tower3D from '../three/index.jsx';
 import Keypad from './Keypad.jsx';
 import { GRADES, generateTask, randomPraise } from '../utils/mathTasks.js';
 import { playCorrect, playFinish, playWrong } from '../utils/sound.js';
@@ -263,7 +263,12 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
             {theme.emoji} {theme.name}
           </span>
           <span className="hud__chip">🎓 {grade.label}</span>
-          <span className="hud__chip">🔥 Serie: {streak}</span>
+          <span
+            className={`hud__chip${streak >= 3 ? ' hud__chip--hot' : ''}`}
+            key={streak >= 3 ? streak : 'cold'}
+          >
+            🔥 Serie: {streak}
+          </span>
           <span className="hud__chip">✅ {correct}</span>
           <span className="hud__chip">❌ {wrong}</span>
         </div>
@@ -315,7 +320,7 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
 
       <main className="game">
         <section className="game__tower">
-          <Tower
+          <Tower3D
             floor={floor}
             theme={theme.id}
             mood={mood}
@@ -324,6 +329,14 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
             sparkle={sparkle}
             shake={shake}
           />
+          {/* Farb-Blitz über der Bühne bei richtig/falsch */}
+          {feedback && feedback.type !== 'info' && (
+            <div
+              key={feedback.nonce}
+              className={`gameflash gameflash--${feedback.type}`}
+              aria-hidden="true"
+            />
+          )}
         </section>
 
         <section className={`game__panel${paused ? ' game__panel--paused' : ''}`}>

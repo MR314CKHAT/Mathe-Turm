@@ -38,8 +38,8 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '.',
         scope: '.',
-        theme_color: '#4f7cff',
-        background_color: '#dff0ff',
+        theme_color: '#120e2a',
+        background_color: '#120e2a',
         categories: ['education', 'games', 'kids'],
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },

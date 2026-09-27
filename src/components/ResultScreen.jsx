@@ -19,6 +19,28 @@ function motivation(floor) {
   return 'Du bist über den Wolken geflogen! 🚀';
 }
 
+const CONFETTI_COLORS = ['#ff9ecb', '#ffd35e', '#9a63e0', '#7ee8fa', '#5fd97e'];
+
+function ResultConfetti({ count = 26 }) {
+  return (
+    <div className="resultconfetti" aria-hidden="true">
+      {Array.from({ length: count }).map((_, index) => (
+        <span
+          key={index}
+          className="resultconfetti__piece"
+          style={{
+            left: `${(index * 37) % 100}%`,
+            background: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+            animationDuration: `${2.6 + ((index * 13) % 22) / 10}s`,
+            animationDelay: `${((index * 29) % 30) / 10}s`,
+            transform: `rotate(${index * 47}deg)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ResultScreen({
   result,
   isRecord,
@@ -34,6 +56,7 @@ export default function ResultScreen({
   return (
     <div className="screen screen--result">
       <div className="card result">
+        <ResultConfetti />
         <p className="result__reason">{REASONS[result.reason] ?? ''}</p>
 
         <h1 className="result__headline">

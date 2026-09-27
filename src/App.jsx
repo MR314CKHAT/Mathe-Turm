@@ -51,6 +51,15 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Lebendiger Hintergrund hinter allen Screens */}
+      <div className="appbg" aria-hidden="true">
+        <div className="appbg__gradient" />
+        <div className="appbg__blob appbg__blob--1" />
+        <div className="appbg__blob appbg__blob--2" />
+        <div className="appbg__blob appbg__blob--3" />
+        <div className="appbg__stars" />
+      </div>
+
       {screen === 'start' && (
         <StartScreen
           settings={settings}

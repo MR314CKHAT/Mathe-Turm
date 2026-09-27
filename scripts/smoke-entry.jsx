@@ -49,6 +49,11 @@ expect(
   ['Zauberschloss', 'Piratenmeer'].every((t) => startHtml.includes(t))
 );
 expect('StartScreen markiert die gewählte Welt', startHtml.includes('themeportal--active'));
+expect('StartScreen enthält die 3D-Vorschau-Fläche', startHtml.includes('hero3d'));
+expect(
+  'Piratenwelt ist spielbar (kein „kommt bald“ mehr)',
+  !startHtml.includes('kommt bald')
+);
 
 // --- GameScreen (mit Zeit pro Aufgabe) ---
 const gameHtml = renderToString(
@@ -108,6 +113,7 @@ expect('ResultScreen meldet den Rekord', resultHtml.includes('Neuer Rekord'));
 expect('ResultScreen zeigt die Stockwerke', resultHtml.includes('Stockwerke hoch'));
 expect('ResultScreen rechnet Meter aus', resultHtml.includes('36 Meter'));
 expect('ResultScreen zeigt die Trefferquote', resultHtml.includes('Trefferquote'));
+expect('ResultScreen lässt Konfetti regnen', resultHtml.includes('resultconfetti__piece'));
 
 // --- Ergebnis ohne ein einziges Stockwerk (Trost-Text) ---
 const zeroHtml = renderToString(
