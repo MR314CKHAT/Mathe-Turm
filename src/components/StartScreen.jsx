@@ -1,5 +1,6 @@
 import { GRADES, OPS, allowedOps } from '../utils/mathTasks.js';
 import { getHighscore } from '../utils/storage.js';
+import { themeList } from '../utils/theme.js';
 
 const TOTAL_PRESETS = [3, 5, 10];
 const PER_TASK_PRESETS = [0, 10, 20, 30];
@@ -67,7 +68,49 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
 
         <section className="block">
           <h2 className="block__title">
-            <span className="block__num">1</span> Welche Klasse gehst du?
+            <span className="block__num">1</span> Welche Welt möchtest du?
+          </h2>
+          <div className="choices choices--theme">
+            {themeList().map((entry) => {
+              const active = settings.theme === entry.id;
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  className={`themeportal themeportal--${entry.id}${
+                    active ? ' themeportal--active' : ''
+                  }`}
+                  onClick={() => onChange({ theme: entry.id })}
+                  disabled={!entry.ready}
+                  aria-pressed={active}
+                  title={entry.ready ? entry.tagline : 'Kommt als Nächstes!'}
+                >
+                  <span className="themeportal__scene" aria-hidden="true">
+                    <span className="themeportal__sun" />
+                    <span className="themeportal__cloud themeportal__cloud--1" />
+                    <span className="themeportal__cloud themeportal__cloud--2" />
+                    <span className="themeportal__mark">
+                      {entry.id === 'pirate' ? '🚢' : '🏰'}
+                    </span>
+                    <span className="themeportal__ground" />
+                  </span>
+                  <span className="themeportal__head">
+                    <span className="themeportal__emoji" aria-hidden="true">
+                      {entry.emoji}
+                    </span>
+                    <strong className="themeportal__name">{entry.name}</strong>
+                  </span>
+                  <small className="themeportal__tag">{entry.tagline}</small>
+                  {!entry.ready && <small className="themeportal__soon">✨ kommt bald</small>}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="block">
+          <h2 className="block__title">
+            <span className="block__num">2</span> Welche Klasse gehst du?
           </h2>
           <div className="choices choices--grade">
             {GRADES.map((entry) => (
@@ -86,7 +129,7 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
 
         <section className="block">
           <h2 className="block__title">
-            <span className="block__num">2</span> Was möchtest du rechnen?
+            <span className="block__num">3</span> Was möchtest du rechnen?
           </h2>
           <div className="choices choices--ops">
             {OPS.map((op) => {
@@ -113,7 +156,7 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
         </section>
         <section className="block">
           <h2 className="block__title">
-            <span className="block__num">3</span> Wie lange möchtest du spielen?
+            <span className="block__num">4</span> Wie lange möchtest du spielen?
           </h2>
           <div className="row">
             <span className="row__label">Spielzeit insgesamt</span>
@@ -183,7 +226,7 @@ export default function StartScreen({ settings, highscores, onChange, onStart })
         </section>
         <section className="block">
           <h2 className="block__title">
-            <span className="block__num">4</span> Wenn eine Antwort falsch ist …
+            <span className="block__num">5</span> Wenn eine Antwort falsch ist …
           </h2>
           <div className="choices choices--mode">
             {FAIL_MODES.map((mode) => (

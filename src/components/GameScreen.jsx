@@ -3,6 +3,7 @@ import Tower from './Tower.jsx';
 import Keypad from './Keypad.jsx';
 import { GRADES, generateTask, randomPraise } from '../utils/mathTasks.js';
 import { playCorrect, playFinish, playWrong } from '../utils/sound.js';
+import { themeOf } from '../utils/theme.js';
 
 function formatTime(totalSeconds) {
   const safe = Math.max(0, totalSeconds);
@@ -29,6 +30,31 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
   const [feedback, setFeedbackRaw] = useState(null);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+
+  // Stimmung und Effekte der Spielfigur (Zähler starten Animationen neu)
+  const [mood, setMood] = useState('idle');
+  const [burst, setBurst] = useState(0);
+  const [rain, setRain] = useState(0);
+  const [sparkle, setSparkle] = useState(0);
+  const [shake, setShake] = useState(0);
+  const moodTimerRef = useRef(null);
+
+  const theme = themeOf(settings.theme);
+
+  /** Die Figur freut sich / trauert eine Weile und geht dann auf "idle". */
+  function setMoodFor(nextMood, ms = 1700) {
+    setMood(nextMood);
+    if (moodTimerRef.current) window.clearTimeout(moodTimerRef.current);
+    moodTimerRef.current = window.setTimeout(() => setMood('idle'), ms);
+  }
+
+  // Mood-Timer beim Verlassen aufräumen
+  useEffect(
+    () => () => {
+      if (moodTimerRef.current) window.clearTimeout(moodTimerRef.current);
+    },
+    []
+  );
 
   const liveRef = useRef(null);
   const handlersRef = useRef({});
@@ -74,6 +100,8 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
   function applyPenalty(intro) {
     setWrong((value) => value + 1);
     setStreak(0);
+    setMoodFor('sad');
+    setShake((value) => value + 1);
     setTask((current) => nextTask(current.text));
     setInput('');
     if (perTask > 0) setTaskTimeLeft(perTask);
@@ -89,6 +117,7 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
     if (settings.failMode === 'a') {
       // Entspannt: Aufgabe bleibt, nur die Zeit startet neu.
       setTaskTimeLeft(perTask);
+      setMoodFor('sad');
       setFeedback({ type: 'info', text: '⏰ Die Zeit ist um – versuch es nochmal!' });
       return;
     }
@@ -131,6 +160,12 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
       if (newFloor % 5 === 0) text = `🎉 ${newFloor}. Stockwerk erreicht! Weiter so!`;
       setFeedback({ type: 'correct', text });
       if (settings.sound) playCorrect();
+
+      // Figur jubelt, Konfetti und Glitzer starten – alle 5 Etagen regnet es
+      setMoodFor('cheer');
+      setBurst((value) => value + 1);
+      setSparkle((value) => value + 1);
+      if (newFloor % 5 === 0) setRain((value) => value + 1);
       return;
     }
 
@@ -138,9 +173,13 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
     setStreak(0);
     setInput('');
     if (settings.failMode === 'a') {
+      // Entspannt: Stimmung + Beben, aber keine Bestrafung.
+      setMoodFor('sad');
+      setShake((value) => value + 1);
       if (perTask > 0) setTaskTimeLeft(perTask);
       setFeedback({ type: 'wrong', text: '💪 Fast! Versuch es nochmal.' });
     } else {
+      // applyPenalty setzt selbst Stimmung ("sad") und Beben.
       applyPenalty(`❌ Leider falsch – ${task.answer} wäre richtig.`);
     }
     if (settings.sound) playWrong();
@@ -220,6 +259,9 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
     <div className="screen screen--game">
       <header className="hud">
         <div className="hud__chips">
+          <span className="hud__chip">
+            {theme.emoji} {theme.name}
+          </span>
           <span className="hud__chip">🎓 {grade.label}</span>
           <span className="hud__chip">🔥 Serie: {streak}</span>
           <span className="hud__chip">✅ {correct}</span>
@@ -273,7 +315,15 @@ export default function GameScreen({ settings, onFinish, onQuit }) {
 
       <main className="game">
         <section className="game__tower">
-          <Tower floor={floor} />
+          <Tower
+            floor={floor}
+            theme={theme.id}
+            mood={mood}
+            burst={burst}
+            rain={rain}
+            sparkle={sparkle}
+            shake={shake}
+          />
         </section>
 
         <section className={`game__panel${paused ? ' game__panel--paused' : ''}`}>

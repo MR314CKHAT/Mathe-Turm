@@ -1,0 +1,1530 @@
+/*
+ * Turm, Himmel, Szenen, Spielfigur und Effekte.
+ * Farben kommen aus CSS-Variablen pro Welt (siehe unten), damit der
+ * Piratenmast (Schritt 2) nur andere Werte braucht.
+ */
+
+/* ---------------- Turm-Rahmen ---------------- */
+.tower {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  height: var(--tower-height, 460px);
+  border-radius: 26px;
+  overflow: hidden;
+  border: 4px solid var(--scene-outline, #4a2a52);
+  box-shadow: 0 14px 0 rgba(35, 20, 45, 0.18), var(--shadow);
+  transition: box-shadow 0.2s ease;
+}
+
+.tower--shake {
+  animation: tower-shake 0.42s ease-in-out;
+}
+
+@keyframes tower-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-7px, 2px, 0) rotate(-0.6deg);
+  }
+  40% {
+    transform: translate3d(7px, -2px, 0) rotate(0.6deg);
+  }
+  60% {
+    transform: translate3d(-5px, 1px, 0) rotate(-0.4deg);
+  }
+  80% {
+    transform: translate3d(5px, 1px, 0) rotate(0.4deg);
+  }
+}
+
+.tower__inner {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.55s cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+/* ---------------- Himmel ---------------- */
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sky__gradient {
+  position: absolute;
+  inset: 0;
+  transition: background 1.8s ease;
+}
+
+.sky__stars {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.2s ease;
+}
+
+.sky__star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  animation: star-twinkle 2.4s ease-in-out infinite;
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Sonne */
+.sky__sun {
+  position: absolute;
+  left: 56px;
+  right: auto;
+  top: 24px;
+  width: 74px;
+  height: 74px;
+  transition: opacity 1.4s ease;
+}
+
+.sky__sun-core {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6c9, #ffd35e 60%, #ffb703);
+  box-shadow: 0 0 26px rgba(255, 200, 60, 0.85);
+}
+
+.sky__rays {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 224, 130, 0.85) 0deg 9deg,
+    transparent 9deg 24deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 30px, #000 31px, #000 44px, transparent 45px);
+  mask: radial-gradient(circle, transparent 30px, #000 31px, #000 44px, transparent 45px);
+  animation: sun-spin 26s linear infinite;
+}
+
+@keyframes sun-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mond */
+.sky__moon {
+  position: absolute;
+  left: 64px;
+  right: auto;
+  top: 30px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #fffdf0, #ffe9a8 70%, #e7c96a);
+  box-shadow: 0 0 30px rgba(255, 240, 190, 0.6);
+  transition: opacity 1.4s ease;
+}
+
+.sky__moon-crater {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(200, 175, 110, 0.35);
+}
+
+.sky__moon-crater--1 {
+  left: 14px;
+  top: 16px;
+  width: 12px;
+  height: 12px;
+}
+
+.sky__moon-crater--2 {
+  left: 34px;
+  top: 30px;
+  width: 9px;
+  height: 9px;
+}
+
+.sky__moon-crater--3 {
+  left: 20px;
+  top: 40px;
+  width: 7px;
+  height: 7px;
+}
+
+/* Regenbogen */
+.sky__rainbow {
+  position: absolute;
+  left: 50%;
+  top: 96px;
+  width: 260px;
+  height: 130px;
+  margin-left: -130px;
+  transition: opacity 1.6s ease;
+}
+
+.sky__rainbow i {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  border-radius: 50% 50% 0 0;
+  border-style: solid;
+  border-bottom: none;
+  transform: translateX(-50%);
+}
+
+.sky__rainbow i:nth-child(1) {
+  width: 240px;
+  height: 120px;
+  border-width: 14px;
+  border-color: #ff8fb1;
+}
+
+.sky__rainbow i:nth-child(2) {
+  width: 208px;
+  height: 104px;
+  border-width: 14px;
+  border-color: #ffd35e;
+}
+
+.sky__rainbow i:nth-child(3) {
+  width: 176px;
+  height: 88px;
+  border-width: 14px;
+  border-color: #8ce0ff;
+}
+
+/* Wolken */
+.sky__clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cloud-track {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  animation: cloud-slide var(--cloud-duration, 50s) linear infinite;
+  animation-delay: var(--cloud-delay, 0s);
+}
+
+@keyframes cloud-slide {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.cloud {
+  position: absolute;
+  left: 0;
+  width: 86px;
+  height: 30px;
+  border-radius: 20px;
+  background: var(--sky-cloud, #ffffff);
+  transform: scale(var(--cloud-scale, 1));
+  transform-origin: left center;
+  box-shadow: 0 6px 0 rgba(120, 150, 200, 0.18);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.cloud::before {
+  left: 12px;
+  top: -16px;
+  width: 40px;
+  height: 40px;
+}
+
+.cloud::after {
+  left: 42px;
+  top: -22px;
+  width: 50px;
+  height: 50px;
+}
+
+.sky__clouds--front .cloud {
+  box-shadow: 0 8px 0 rgba(120, 150, 200, 0.22);
+}
+
+/* Vögel */
+.sky__birds {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.4s ease;
+}
+
+.bird {
+  position: absolute;
+  width: 18px;
+  height: 12px;
+  animation: bird-fly 14s linear infinite;
+}
+
+.bird::before,
+.bird::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 10px;
+  height: 3.5px;
+  border-radius: 3px;
+  background: #3d3350;
+}
+
+.bird::before {
+  left: 0;
+  transform: rotate(22deg);
+}
+
+.bird::after {
+  right: 0;
+  transform: rotate(-22deg);
+}
+
+.bird--1 {
+  left: 8%;
+  top: 22%;
+}
+
+.bird--2 {
+  left: 30%;
+  top: 15%;
+  animation-delay: -4s;
+  transform: scale(0.8);
+}
+
+.bird--3 {
+  left: 52%;
+  top: 28%;
+  animation-delay: -9s;
+  transform: scale(0.65);
+}
+
+@keyframes bird-fly {
+  0% {
+    margin-left: -40px;
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -14px;
+  }
+  100% {
+    margin-left: 320px;
+    margin-top: 0;
+  }
+}
+
+/* Heißluftballon */
+.sky__balloon {
+  position: absolute;
+  left: 22px;
+  top: 150px;
+  width: 46px;
+  height: 74px;
+  animation: balloon-float 9s ease-in-out infinite;
+  transition: opacity 1.6s ease;
+}
+
+.balloon__envelope {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 52px;
+  border-radius: 50% 50% 46% 46%;
+  background: linear-gradient(90deg, #ff9ecb 0 33%, #ffd35e 33% 66%, #9a63e0 66% 100%);
+  border: 3px solid var(--scene-outline, #4a2a52);
+}
+
+.balloon__basket {
+  position: absolute;
+  left: 14px;
+  bottom: 0;
+  width: 18px;
+  height: 14px;
+  border-radius: 4px;
+  background: #b9793f;
+  border: 3px solid var(--scene-outline, #4a2a52);
+}
+
+@keyframes balloon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(2deg);
+  }
+}
+
+/* Zauberhimmel: Glitzer und Schmetterlinge */
+.sky__magic {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.6s ease;
+}
+
+.sparkle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fff6c9;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: sparkle-twinkle 2.2s ease-in-out infinite;
+}
+
+.sparkle--1 {
+  left: 12%;
+  top: 18%;
+}
+
+.sparkle--2 {
+  left: 74%;
+  top: 26%;
+  animation-delay: 0.4s;
+}
+
+.sparkle--3 {
+  left: 40%;
+  top: 8%;
+  animation-delay: 0.8s;
+}
+
+.sparkle--4 {
+  left: 22%;
+  top: 46%;
+  animation-delay: 1.2s;
+}
+
+.sparkle--5 {
+  left: 86%;
+  top: 52%;
+  animation-delay: 0.6s;
+}
+
+.sparkle--6 {
+  left: 56%;
+  top: 66%;
+  animation-delay: 1.6s;
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25) rotate(35deg);
+  }
+}
+
+.butterfly {
+  position: absolute;
+  width: 20px;
+  height: 16px;
+  animation: butterfly-path 11s ease-in-out infinite;
+}
+
+.butterfly::before,
+.butterfly::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 16px;
+  border-radius: 60% 40% 60% 40%;
+  background: #ffa8d8;
+  border: 2px solid var(--scene-outline, #4a2a52);
+  animation: butterfly-flap 0.45s ease-in-out infinite alternate;
+}
+
+.butterfly::before {
+  left: 0;
+  transform-origin: right center;
+}
+
+.butterfly::after {
+  right: 0;
+  transform-origin: left center;
+}
+
+.butterfly--1 {
+  left: 16%;
+  top: 34%;
+}
+
+.butterfly--2 {
+  left: 68%;
+  top: 44%;
+  animation-delay: -5s;
+}
+
+@keyframes butterfly-flap {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(55deg);
+  }
+}
+
+@keyframes butterfly-path {
+  0%,
+  100% {
+    margin-left: 0;
+    margin-top: 0;
+  }
+  25% {
+    margin-left: 26px;
+    margin-top: -18px;
+  }
+  50% {
+    margin-left: 52px;
+    margin-top: 6px;
+  }
+  75% {
+    margin-left: 22px;
+    margin-top: 20px;
+  }
+}
+
+/* Anzeige der Himmels-Zone */
+.sky__zone {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #fff;
+  background: rgba(20, 14, 40, 0.42);
+  text-transform: uppercase;
+}
+
+/* ---------------- Farben der Schloss-Welt ---------------- */
+.tower--princess {
+  --scene-outline: #5b2352;
+  --sky-cloud: #ffffff;
+  --castle-stone: #fdf1fa;
+  --castle-stone-dark: #f0d8ec;
+  --castle-mortar: #e6c3e2;
+  --castle-window: #ffe4f5;
+  --castle-window-top: #ffd0ec;
+  --castle-accent: #ff77b0;
+  --castle-gold: #ffd35e;
+  --castle-number: #a8659b;
+  --ground-1: #a8e6a3;
+  --ground-2: #5cbb63;
+  --ground-line: #3f9e52;
+  --gauge-color: #ffe9a8;
+}
+
+/* ---------------- Etagen mit Fassade ---------------- */
+.floor {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  background: var(--castle-stone);
+  border-left: 4px solid var(--scene-outline);
+  border-right: 4px solid var(--scene-outline);
+  border-bottom: 3px solid var(--castle-stone-dark);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.floor__stones {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+      0deg,
+      transparent 0 19px,
+      var(--castle-mortar) 19px 21px
+    ),
+    repeating-linear-gradient(90deg, transparent 0 33px, var(--castle-mortar) 33px 35px);
+}
+
+/* Spitzbogen-Fenster */
+.floor__window {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 66px;
+  height: 33px;
+  margin-left: -33px;
+  border: 3px solid var(--scene-outline);
+  border-radius: 33px 33px 7px 7px;
+  background: linear-gradient(180deg, var(--castle-window-top), var(--castle-window));
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  transition: background 0.4s ease;
+}
+
+.floor__pane {
+  position: absolute;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--scene-outline);
+  opacity: 0.55;
+}
+
+.floor__pane--l {
+  left: 32%;
+}
+
+.floor__pane--r {
+  left: 65%;
+}
+
+/* Nachbarkind im Fenster */
+.floor__neighbor {
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+}
+
+.floor__neighbor::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffd9c0;
+  border: 2.5px solid var(--scene-outline);
+}
+
+.floor__neighbor::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  bottom: 0;
+  width: 16px;
+  height: 9px;
+  border-radius: 7px 7px 0 0;
+  background: #7ec8ff;
+  border: 2.5px solid var(--scene-outline);
+  animation: neighbor-wave 1.7s ease-in-out infinite;
+}
+
+@keyframes neighbor-wave {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateX(3px) rotate(5deg);
+  }
+}
+
+/* Fensterbank mit Blumen */
+.floor__sill {
+  position: absolute;
+  left: 50%;
+  top: 37px;
+  width: 80px;
+  height: 9px;
+  margin-left: -40px;
+  border-radius: 4px;
+  background: var(--castle-stone-dark);
+  border: 2.5px solid var(--scene-outline);
+}
+
+.floor__sill i {
+  position: absolute;
+  bottom: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--scene-outline);
+}
+
+.floor__sill i:nth-child(1) {
+  left: 6px;
+  background: #ff77b0;
+}
+
+.floor__sill i:nth-child(2) {
+  left: 34px;
+  background: #ffd35e;
+}
+
+.floor__sill i:nth-child(3) {
+  right: 6px;
+  background: #a887ff;
+}
+
+/* Balkon */
+.floor__balcony {
+  position: absolute;
+  left: 50%;
+  top: 31px;
+  width: 104px;
+  height: 16px;
+  margin-left: -52px;
+  border: 3px solid var(--scene-outline);
+  border-radius: 0 0 7px 7px;
+  background: linear-gradient(180deg, #ffffff, var(--castle-stone-dark));
+}
+
+.floor__balcony i {
+  position: absolute;
+  bottom: 100%;
+  width: 3.5px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--scene-outline);
+}
+
+.floor__balcony i:nth-child(1) {
+  left: 3px;
+}
+
+.floor__balcony i:nth-child(2) {
+  left: 50%;
+}
+
+.floor__balcony i:nth-child(3) {
+  right: 3px;
+}
+
+/* Rosenranke */
+.floor__vine {
+  position: absolute;
+  left: 3px;
+  top: 5px;
+  width: 22px;
+  height: 40px;
+  border-radius: 12px 0 0 12px;
+  background: radial-gradient(circle at 25% 25%, #7ed07f, #3f9e52);
+  border: 3px solid var(--scene-outline);
+}
+
+.floor__vine::before,
+.floor__vine::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff77b0;
+  border: 2px solid var(--scene-outline);
+}
+
+.floor__vine::before {
+  right: -2px;
+  top: 3px;
+}
+
+.floor__vine::after {
+  right: 1px;
+  bottom: 3px;
+  background: #ffd35e;
+}
+
+/* Fackel */
+.floor__torch {
+  position: absolute;
+  right: 8px;
+  top: 14px;
+  width: 9px;
+  height: 15px;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 50% 72%, #fff5b8, #ff9d2e 58%, #ff6b1a);
+  box-shadow: 0 0 14px rgba(255, 170, 60, 0.85);
+  animation: torch-flicker 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes torch-flicker {
+  from {
+    transform: scale(1) translateY(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.14) translateY(-2px);
+    opacity: 1;
+  }
+}
+
+/* Wimpel an jeder 5. Etage */
+.floor__banner {
+  position: absolute;
+  left: 12px;
+  top: -2px;
+  width: 36px;
+  height: 32px;
+  background: var(--castle-accent);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 3px 0 var(--scene-outline));
+}
+
+.floor__banner-num {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  margin-top: 1px;
+}
+
+.floor__banner-flag {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--castle-gold);
+  border: 2.5px solid var(--scene-outline);
+}
+
+.floor__number {
+  position: absolute;
+  right: 6px;
+  bottom: 1px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--castle-number);
+  opacity: 0.8;
+}
+
+/* Checkpoint (alle 5 Etagen) leuchtet sanft */
+.floor--checkpoint {
+  z-index: 3;
+  background: linear-gradient(180deg, rgba(255, 249, 226, 0.92), rgba(255, 231, 165, 0.92));
+  box-shadow: inset 0 0 0 2px rgba(255, 211, 94, 0.55);
+}
+
+/* Aktuelle Etage leuchtet */
+.floor--current {
+  z-index: 3;
+  background: linear-gradient(180deg, #fffaea, #ffe9b8);
+  box-shadow: inset 0 0 0 3px var(--castle-gold), 0 0 24px rgba(255, 211, 94, 0.8);
+}
+
+.floor--current .floor__window {
+  background: linear-gradient(180deg, #fff3c4, #ffe08a);
+}
+
+.floor--current .floor__window::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 130%, rgba(255, 255, 255, 0.9), transparent 70%);
+  animation: window-glow 1.4s ease-in-out infinite;
+}
+
+@keyframes window-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* ---------------- Schlossgarten ---------------- */
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.ground__hill {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  top: -18px;
+  height: 32px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: #c6edbc;
+  border-top: 4px solid var(--ground-line);
+}
+
+.ground__grass {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--ground-1), var(--ground-2) 85%);
+  border-top: 4px solid var(--ground-line);
+}
+
+.ground__hedge {
+  position: absolute;
+  bottom: 30px;
+  width: 52px;
+  height: 26px;
+  border-radius: 14px 14px 0 0;
+  background: radial-gradient(circle at 30% 30%, #74cc74, #3f9e52);
+  border: 3px solid var(--scene-outline);
+  border-bottom: none;
+}
+
+.ground__hedge--l {
+  left: 0;
+}
+
+.ground__hedge--r {
+  right: 0;
+}
+
+.ground__path {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 74px;
+  height: 16px;
+  margin-left: -37px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, #f3e6cd, #d9c39c);
+  border: 3px solid var(--scene-outline);
+  border-bottom: none;
+}
+
+.ground__gate {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 50px;
+  height: 52px;
+  margin-left: -25px;
+  border-radius: 25px 25px 0 0;
+  background: linear-gradient(180deg, #b87333, #6b3f18);
+  border: 4px solid var(--scene-outline);
+  border-bottom: none;
+  box-shadow: inset 0 0 0 4px rgba(255, 235, 200, 0.35);
+}
+
+.ground__gate-top {
+  position: absolute;
+  left: 50%;
+  top: 15px;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--castle-gold);
+  border: 2.5px solid var(--scene-outline);
+}
+
+.ground__fountain {
+  position: absolute;
+  left: 12px;
+  bottom: 26px;
+  width: 42px;
+  height: 20px;
+  border-radius: 5px 5px 12px 12px;
+  background: linear-gradient(180deg, #e2effa, #a8c6e0);
+  border: 3px solid var(--scene-outline);
+}
+
+.ground__fountain-water {
+  position: absolute;
+  left: 50%;
+  bottom: 96%;
+  width: 6px;
+  height: 20px;
+  margin-left: -3px;
+  border-radius: 4px;
+  background: #7ec8ff;
+  border: 2.5px solid var(--scene-outline);
+  animation: fountain-jet 1.6s ease-in-out infinite;
+}
+
+@keyframes fountain-jet {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.72);
+  }
+}
+
+.ground__bush {
+  position: absolute;
+  bottom: 32px;
+  height: 22px;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 30% 25%, #7ed07f, #4fae5c);
+  border: 3px solid var(--scene-outline);
+}
+
+.ground__bush--1 {
+  right: 22px;
+  width: 32px;
+}
+
+.ground__bush--2 {
+  right: 58px;
+  width: 22px;
+  height: 17px;
+}
+
+.ground__flowers {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  width: 74px;
+  height: 26px;
+}
+
+.ground__flowers i {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 15px;
+  border-radius: 2px;
+  background: #3f9e52;
+}
+
+.ground__flowers i::before {
+  content: '';
+  position: absolute;
+  left: -4.5px;
+  top: -9px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--flower, #ff77b0);
+  border: 2.5px solid var(--scene-outline);
+}
+
+.ground__flowers i:nth-child(1) {
+  left: 4px;
+  --flower: #ff77b0;
+}
+
+.ground__flowers i:nth-child(2) {
+  left: 19px;
+  --flower: #ffd35e;
+}
+
+.ground__flowers i:nth-child(3) {
+  left: 34px;
+  --flower: #a887ff;
+}
+
+.ground__flowers i:nth-child(4) {
+  left: 49px;
+  --flower: #ff9d5c;
+}
+
+.ground__flowers i:nth-child(5) {
+  left: 64px;
+  --flower: #ffffff;
+}
+
+/* ---------------- Spielfigur ---------------- */
+.climber {
+  position: absolute;
+  left: 28px;
+  width: 66px;
+  height: 99px;
+  z-index: 5;
+  pointer-events: none;
+  transition: bottom 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.character {
+  width: 100%;
+  height: 100%;
+}
+
+.ch {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.character--idle .ch {
+  animation: ch-idle 2.4s ease-in-out infinite;
+}
+
+.character--cheer .ch {
+  animation: ch-cheer 0.55s ease-in-out 3;
+}
+
+.character--sad .ch {
+  animation: ch-sad 0.9s ease-in-out 2;
+}
+
+@keyframes ch-idle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(1deg);
+  }
+}
+
+@keyframes ch-cheer {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-18px) scale(1.04) rotate(-3deg);
+  }
+  70% {
+    transform: translateY(0) scale(0.97, 1.05);
+  }
+}
+
+@keyframes ch-sad {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(3px) rotate(-7deg);
+  }
+  60% {
+    transform: translateY(3px) rotate(5deg);
+  }
+}
+
+/* Arme schwingen (Drehpunkt an der Schulter) */
+.ch-arm {
+  transform-box: fill-box;
+  transform-origin: 50% 6%;
+  animation: ch-arm-l 1.8s ease-in-out infinite alternate;
+}
+
+.ch-arm--r {
+  animation-name: ch-arm-r;
+}
+
+@keyframes ch-arm-l {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes ch-arm-r {
+  from {
+    transform: rotate(7deg);
+  }
+  to {
+    transform: rotate(-7deg);
+  }
+}
+
+.character--cheer .ch-arm--l {
+  animation: ch-cheer-l 0.36s ease-in-out infinite alternate;
+}
+
+.character--cheer .ch-arm--r {
+  animation: ch-cheer-r 0.36s ease-in-out infinite alternate;
+}
+
+@keyframes ch-cheer-l {
+  from {
+    transform: rotate(-135deg);
+  }
+  to {
+    transform: rotate(-160deg);
+  }
+}
+
+@keyframes ch-cheer-r {
+  from {
+    transform: rotate(135deg);
+  }
+  to {
+    transform: rotate(160deg);
+  }
+}
+
+.character--sad .ch-arm,
+.character--sad .ch-arm--r {
+  animation: ch-arm-sad 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes ch-arm-sad {
+  from {
+    transform: rotate(16deg);
+  }
+  to {
+    transform: rotate(24deg);
+  }
+}
+
+/* Gesicht */
+.ch-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ch-blink 4.6s linear infinite;
+}
+
+@keyframes ch-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.12);
+  }
+}
+
+.character--sad .ch-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(-1);
+}
+
+.character--cheer .ch-mouth {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: ch-mouth 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes ch-mouth {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1.4);
+  }
+}
+
+.character--sad .ch-head {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: ch-head-sad 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes ch-head-sad {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+.character--cheer .ch-head {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: ch-head-cheer 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes ch-head-cheer {
+  from {
+    transform: rotate(-3deg) translateY(0);
+  }
+  to {
+    transform: rotate(3deg) translateY(-3px);
+  }
+}
+
+/* Krone, Schleife, Umhang, Bandana wackeln mit */
+.ch-crown,
+.ch-bow,
+.ch-bandana-tail {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: ch-wiggle 2.4s ease-in-out infinite;
+}
+
+.ch-bow,
+.ch-bandana-tail {
+  animation-delay: -1.2s;
+}
+
+@keyframes ch-wiggle {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+.ch-cape {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: ch-cape 3.2s ease-in-out infinite;
+}
+
+@keyframes ch-cape {
+  0%,
+  100% {
+    transform: skewX(-2deg);
+  }
+  50% {
+    transform: skewX(4deg);
+  }
+}
+
+.ch-crown-gem,
+.ch-gem {
+  animation: ch-gem 1.8s ease-in-out infinite;
+}
+
+@keyframes ch-gem {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---------------- Höhenskala (Seil mit Knoten) ---------------- */
+.gauge {
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.gauge__rope {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  bottom: 14px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #f0c489, #d3a061 55%, #a9702f);
+  box-shadow: inset 0 0 0 1.5px rgba(80, 45, 15, 0.4);
+}
+
+.gauge__knot {
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  color: #7a4a12;
+  border-radius: 50%;
+  background: #f3d9a4;
+  border: 3px solid var(--scene-outline, #4a2a52);
+  box-shadow: 0 2px 0 rgba(35, 20, 45, 0.2);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.gauge__knot--reached {
+  background: var(--castle-gold, #ffd35e);
+  color: #6b4a00;
+  transform: scale(1.12);
+  box-shadow: 0 0 16px rgba(255, 211, 94, 0.95);
+}
+
+/* ---------------- Stockwerks-Anzeige ---------------- */
+.tower__badge {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 12px 5px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 3px solid var(--scene-outline, #4a2a52);
+  box-shadow: 0 4px 0 rgba(35, 20, 45, 0.2);
+  color: var(--scene-outline, #4a2a52);
+  line-height: 1.05;
+}
+
+.tower__badge b {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.tower__badge span {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* ---------------- Belohnungs-Effekte ---------------- */
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 0;
+  height: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.burst__piece {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  animation: burst-fly 1s cubic-bezier(0.15, 0.7, 0.4, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.burst__piece--1 {
+  border-radius: 50%;
+}
+
+.burst__piece--2 {
+  width: 8px;
+  height: 15px;
+  border-radius: 6px;
+}
+
+@keyframes burst-fly {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.7);
+    opacity: 1;
+  }
+  55% {
+    transform: translate(calc(var(--tx) * 0.7), calc(var(--ty) * 0.7 - 14px))
+      rotate(calc(var(--rot) * 0.6)) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), calc(var(--ty) + 40px)) rotate(var(--rot)) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* Münzen / Schlüssel regnen */
+.rain {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.rain__drop {
+  position: absolute;
+  top: -6%;
+  animation: rain-fall 1.5s ease-in forwards;
+}
+
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-26px) rotate(-20deg) scale(0.7);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(470px) rotate(24deg) scale(1.05);
+    opacity: 0;
+  }
+}
+
+/* Funkelnder Glitzerregen */
+.sparkle-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.sparkle-burst__star {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  background: #fff6c9;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 6px rgba(255, 240, 170, 0.95));
+  animation: sparkle-pop 1s ease-out forwards;
+}
+
+@keyframes sparkle-pop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.35) rotate(70deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.15) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* ---------------- Farben der Piraten-Welt ----------------
+ * Die Mast-Szene (Schritt 2) benutzt dieselben Klassen wie das Schloss,
+ * bekommt hier aber eigene Farben: Holz, Segeltuch, Meer und Deck.
+ */
+.tower--pirate {
+  --scene-outline: #16233a;
+  --sky-cloud: #f3f7fa;
+  --castle-stone: #c58a4e;
+  --castle-stone-dark: #9c6434;
+  --castle-mortar: #8a5426;
+  --castle-window: #a8dcf7;
+  --castle-window-top: #d9f1ff;
+  --castle-accent: #e0454b;
+  --castle-gold: #ffd35e;
+  --castle-number: #5b3a1c;
+  --ground-1: #d9b27a;
+  --ground-2: #a9773f;
+  --ground-line: #6b4a2f;
+  --gauge-color: #e8d3a8;
+}

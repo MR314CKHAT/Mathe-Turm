@@ -2,9 +2,11 @@ import { useState } from 'react';
 import StartScreen from './components/StartScreen.jsx';
 import GameScreen from './components/GameScreen.jsx';
 import ResultScreen from './components/ResultScreen.jsx';
-import { getHighscore, loadHighscores, saveHighscore } from './utils/storage.js';
+import { getHighscore, loadHighscores, loadTheme, saveHighscore, saveTheme } from './utils/storage.js';
+import { DEFAULT_THEME, THEMES } from './utils/theme.js';
 
 const DEFAULT_SETTINGS = {
+  theme: DEFAULT_THEME,
   grade: 2,
   ops: ['add'],
   totalMinutes: 5,
@@ -15,13 +17,19 @@ const DEFAULT_SETTINGS = {
 
 export default function App() {
   const [screen, setScreen] = useState('start'); // start | playing | result
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState(() => {
+    // Zuletzt gewählte Spielwelt wiederherstellen
+    const saved = loadTheme();
+    const theme = saved && THEMES[saved] && THEMES[saved].ready ? saved : DEFAULT_THEME;
+    return { ...DEFAULT_SETTINGS, theme };
+  });
   const [round, setRound] = useState(0); // erzwingt einen frischen Spielstart
   const [highscores, setHighscores] = useState(loadHighscores);
   const [result, setResult] = useState(null);
   const [isRecord, setIsRecord] = useState(false);
 
   function updateSettings(patch) {
+    if (patch.theme && patch.theme !== settings.theme) saveTheme(patch.theme);
     setSettings((current) => ({ ...current, ...patch }));
   }
 

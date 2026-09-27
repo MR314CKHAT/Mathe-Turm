@@ -7,6 +7,7 @@ import Tower from '../src/components/Tower.jsx';
 const noop = () => {};
 
 const settings = {
+  theme: 'princess',
   grade: 3,
   ops: ['mul', 'div'],
   totalMinutes: 5,
@@ -42,6 +43,11 @@ expect('StartScreen zeigt den Rekord der Klasse', startHtml.includes('9'));
 expect('StartScreen zeigt die Rekordliste', startHtml.includes('Deine Rekorde'));
 expect('StartScreen listet Rekorde aller Klassen', startHtml.includes('Klasse 3: <strong>9</strong>'));
 expect('StartScreen zeigt den Start-Button', startHtml.includes('Los geht'));
+expect(
+  'StartScreen zeigt beide Spielwelten',
+  ['Zauberschloss', 'Piratenmeer'].every((t) => startHtml.includes(t))
+);
+expect('StartScreen markiert die gewählte Welt', startHtml.includes('themeportal--active'));
 
 // --- GameScreen (mit Zeit pro Aufgabe) ---
 const gameHtml = renderToString(
@@ -67,7 +73,7 @@ expect('ohne Aufgaben-Timer wird dieser nicht angezeigt', !gameNoTimer.includes(
 // --- Tower ---
 const towerHtml = renderToString(<Tower floor={7} />);
 expect('Tower markiert das aktuelle Stockwerk', towerHtml.includes('floor--current'));
-expect('Tower hebt Meilensteine hervor', towerHtml.includes('floor--milestone'));
+expect('Tower hebt Checkpoint-Etagen (alle 5) hervor', towerHtml.includes('floor--checkpoint'));
 expect('Tower zeichnet Stockwerke', (towerHtml.match(/class="floor/g) || []).length >= 14);
 
 // --- ResultScreen ---

@@ -1,101 +1,87 @@
-const FLOOR_H = 46;
-const GROUND_H = 48;
-const VISIBLE_FLOORS = 8;
-const VIEW_H = FLOOR_H * VISIBLE_FLOORS + GROUND_H;
-
-const mix = (from, to, t) =>
-  `rgb(${from.map((c, i) => Math.round(c + (to[i] - c) * t)).join(', ')})`;
+import { useEffect, useRef } from 'react';
+import Character from './Character.jsx';
+import Sky from './scenery/Sky.jsx';
+import CastleScene from './scenery/CastleScene.jsx';
+import { Burst, Rain, Sparkles } from './scenery/Particles.jsx';
+import { cameraOffset, floorBottom, renderedFloors, VIEW_H } from './scenery/geometry.js';
 
 /**
- * Zeichnet das Hochhaus. Je höher der Spieler kommt, desto höher "fährt"
- * die Kamera mit (der Turm bewegt sich nach unten) und desto dunkler wird
- * der Himmel – bis man irgendwann in den Sternen steht.
+ * Der Turm: Kamera, Himmel, Szene, Spielfigur, Effekte und Höhenskala.
+ * Die Szene (Zauberschloss / Piratenmast) wird über "theme" ausgetauscht.
+ *
+ * mood: idle | cheer | sad   – Stimmung der Figur
+ * burst/rain/sparkle/shake   – Zähler, die einen Effekt neu starten
  */
-export default function Tower({ floor }) {
-  const totalFloors = Math.max(14, floor + 8);
-  const camY = Math.max(0, (floor - 3) * FLOOR_H);
-  const progress = Math.min(1, Math.max(0, floor / 25));
-  const dark = progress > 0.5;
+export default function Tower({
+  floor,
+  theme = 'princess',
+  mood = 'idle',
+  burst = 0,
+  rain = 0,
+  sparkle = 0,
+  shake = 0,
+}) {
+  const totalFloors = renderedFloors(floor);
+  const camY = cameraOffset(floor);
 
-  const skyTop = mix([124, 180, 255], [8, 16, 50], progress);
-  const skyBottom = mix([216, 238, 255], [34, 60, 124], progress);
+  // Schritt 1: Schloss-Welt. Der Piratenmast folgt in Schritt 2.
+  const Scene = CastleScene;
 
-  const floors = [];
-  for (let i = 1; i <= totalFloors; i += 1) floors.push(i);
+  // Beben neu starten: Klasse kurz abziehen, neu auslösen (Reflow), wieder setzen.
+  const towerRef = useRef(null);
+  const lastShake = useRef(0);
+  useEffect(() => {
+    const node = towerRef.current;
+    if (!node || shake === lastShake.current) return;
+    lastShake.current = shake;
+    node.classList.remove('tower--shake');
+    if (shake <= 0) return;
+    void node.offsetWidth; // Reflow erzwingen
+    node.classList.add('tower--shake');
+  }, [shake]);
 
-  const character = floor >= 15 ? '🧑‍🚀' : '🧒';
+  const knots = [];
+  for (let number = 5; number <= totalFloors + 5; number += 5) knots.push(number);
 
   return (
     <div
-      className="tower"
-      style={{
-        height: `${VIEW_H}px`,
-        background: `linear-gradient(to top, ${skyBottom}, ${skyTop})`,
-      }}
+      ref={towerRef}
+      className={`tower tower--${theme}`}
+      style={{ '--tower-height': `${VIEW_H}px` }}
       aria-label={`Du bist im ${floor}. Stockwerk`}
     >
-      <div className="tower__stars" style={{ opacity: progress }} aria-hidden="true">
-        {Array.from({ length: 22 }).map((_, index) => (
+      <Sky floor={floor} theme={theme} />
+
+      <div className="tower__inner" style={{ transform: `translateY(${camY}px)` }}>
+        <Scene floor={floor} totalFloors={totalFloors} />
+
+        <div className="climber" style={{ bottom: `${floorBottom(floor) + 6}px` }}>
+          <Character theme={theme} mood={mood} />
+        </div>
+      </div>
+
+      {/* Kletterseil links als Höhenskala */}
+      <div className="gauge" aria-hidden="true">
+        <span className="gauge__rope" />
+        {knots.map((number) => (
           <span
-            key={index}
-            className="tower__star"
-            style={{
-              left: `${(index * 37) % 96}%`,
-              top: `${(index * 53) % 90}%`,
-              animationDelay: `${(index % 5) * 0.4}s`,
-            }}
-          />
+            key={number}
+            className={`gauge__knot${floor >= number ? ' gauge__knot--reached' : ''}`}
+            style={{ bottom: `${floorBottom(number) - camY + 20}px` }}
+          >
+            {floor >= number ? '★' : ''}
+          </span>
         ))}
       </div>
 
-      <div
-        className="tower__clouds"
-        style={{ opacity: Math.max(0, 1 - progress * 2) }}
-        aria-hidden="true"
-      >
-        <span className="tower__cloud tower__cloud--1">☁️</span>
-        <span className="tower__cloud tower__cloud--2">☁️</span>
-        <span className="tower__cloud tower__cloud--3">⛅</span>
-      </div>
+      {burst > 0 && <Burst nonce={burst} theme={theme} />}
+      {sparkle > 0 && <Sparkles nonce={sparkle} />}
+      {rain > 0 && <Rain nonce={rain} theme={theme} />}
 
-      <div
-        className="tower__inner"
-        style={{ transform: `translateY(${camY}px)` }}
-      >
-        <div className="tower__ground" style={{ height: `${GROUND_H}px` }}>
-          <span className="tower__tree">🌳</span>
-          <span className="tower__tree tower__tree--right">🌲</span>
-          <span className="tower__door">🚪</span>
-        </div>
-
-        {floors.map((number) => {
-          const isCurrent = number === floor;
-          const isMilestone = number % 5 === 0;
-          return (
-            <div
-              key={number}
-              className={`floor${isCurrent ? ' floor--current' : ''}${
-                isMilestone ? ' floor--milestone' : ''
-              }`}
-              style={{
-                bottom: `${GROUND_H + (number - 1) * FLOOR_H}px`,
-                height: `${FLOOR_H}px`,
-              }}
-            >
-              <span className="floor__number">
-                {isMilestone && number !== 0 ? '⭐' : number}
-              </span>
-              <span className="floor__window">{isCurrent ? character : '🪟'}</span>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className={`tower__badge${dark ? ' tower__badge--light' : ''}`}>
-        <strong>{floor}</strong>
-        <span>Stockwerk</span>
+      <div className="tower__badge">
+        <b>{floor}</b>
+        <span>{theme === 'pirate' ? 'Plattform' : 'Stockwerk'}</span>
       </div>
     </div>
   );
 }
-

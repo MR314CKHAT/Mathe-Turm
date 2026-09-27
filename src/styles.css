@@ -250,6 +250,180 @@ body {
   padding: 16px;
 }
 
+/* ---------- Portale zu den Spielwelten ---------- */
+.choices--theme {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.themeportal {
+  font-family: var(--font-body);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 10px 10px 12px;
+  background: #f6f8ff;
+  border: 4px solid transparent;
+  border-radius: 22px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.themeportal:hover:not(:disabled) {
+  transform: translateY(-3px);
+}
+
+.themeportal--active {
+  border-color: var(--accent);
+  box-shadow: 0 8px 18px rgba(255, 183, 3, 0.3);
+}
+
+.themeportal--active::after {
+  content: '✔';
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #7a4b00;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 #d99800;
+  z-index: 3;
+}
+
+.themeportal:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.themeportal__scene {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 104px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid rgba(22, 35, 58, 0.18);
+}
+
+.themeportal--princess .themeportal__scene {
+  background: linear-gradient(180deg, #8ab6ff 0%, #cfe6ff 52%, #ffe9f6 100%);
+}
+
+.themeportal--pirate .themeportal__scene {
+  background: linear-gradient(180deg, #5fb8f0 0%, #a8dcf7 58%, #e8f6ff 100%);
+}
+
+.themeportal__sun {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6c9, #ffd35e 65%, #ffb703);
+  box-shadow: 0 0 14px rgba(255, 200, 60, 0.85);
+}
+
+.themeportal__cloud {
+  position: absolute;
+  width: 46px;
+  height: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.themeportal__cloud::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: -9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.themeportal__cloud--1 {
+  left: 8px;
+  top: 24px;
+}
+
+.themeportal__cloud--2 {
+  right: 30px;
+  top: 52px;
+  transform: scale(0.78);
+}
+
+.themeportal__mark {
+  position: absolute;
+  left: 50%;
+  bottom: 15px;
+  transform: translateX(-50%);
+  font-size: 46px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.themeportal__ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+}
+
+.themeportal--princess .themeportal__ground {
+  background: linear-gradient(180deg, #a8e6a3, #5cbb63);
+  border-top: 3px solid #3f9e52;
+}
+
+.themeportal--pirate .themeportal__ground {
+  background: repeating-linear-gradient(180deg, #4aa3e8 0 7px, #3f92d1 7px 14px);
+  border-top: 3px solid #2a6ea8;
+}
+
+.themeportal__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.themeportal__emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.themeportal__name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--brand-dark);
+}
+
+.themeportal__tag {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+.themeportal__soon {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  background: rgba(22, 35, 58, 0.07);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -656,196 +830,16 @@ body {
   }
 }
 
-/* ---------- Turm / Hochhaus ---------- */
-.tower {
-  position: relative;
-  width: 290px;
-  max-width: 100%;
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: background 0.8s ease;
-}
+/* ---------- Turm / Hochhaus ----------
+ * Die gesamte Turm-Darstellung (Rahmen, Himmel, Szenen, Figur, Effekte)
+ * liegt in src/styles/tower.css und wird in main.jsx geladen.
+ */
 
-.tower__inner {
-  position: absolute;
-  inset: 0;
-  transition: transform 0.55s cubic-bezier(0.34, 1.3, 0.64, 1);
-}
+/* (Wolken der alten Turm-Ansicht – entfernt, siehe sky__clouds in tower.css) */
 
-.tower__stars {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
+/* (Boden/Baum der alten Turm-Ansicht – ersetzt durch die Szene in tower.css) */
 
-.tower__star {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 6px #fff;
-  animation: twinkle 2.6s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.tower__clouds {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-
-.tower__cloud {
-  position: absolute;
-  font-size: 30px;
-  opacity: 0.9;
-}
-
-.tower__cloud--1 {
-  left: 4%;
-  top: 74%;
-  animation: drift 9s ease-in-out infinite;
-}
-
-.tower__cloud--2 {
-  left: 60%;
-  top: 56%;
-  animation: drift 11s ease-in-out infinite reverse;
-}
-
-.tower__cloud--3 {
-  left: 20%;
-  top: 38%;
-  animation: drift 13s ease-in-out infinite;
-}
-
-@keyframes drift {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(18px);
-  }
-}
-
-.tower__ground {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-top: 6px solid #16a34a;
-  background: linear-gradient(180deg, #86efac, #22c55e);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tower__door {
-  font-size: 22px;
-}
-
-.tower__tree {
-  position: absolute;
-  left: 8px;
-  bottom: 4px;
-  font-size: 26px;
-}
-
-.tower__tree--right {
-  left: auto;
-  right: 10px;
-}
-
-.floor {
-  position: absolute;
-  left: 26px;
-  right: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
-  border: 3px solid #c9d4e8;
-  border-bottom-width: 5px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #ffffff, #e9eef8);
-  transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
-}
-
-.floor__number {
-  font-weight: 800;
-  font-size: 13px;
-  color: #8b97ad;
-}
-
-.floor__window {
-  font-size: 21px;
-  display: inline-block;
-}
-
-.floor--milestone .floor__number {
-  font-size: 15px;
-}
-
-.floor--current {
-  z-index: 2;
-  border-color: var(--accent);
-  background: linear-gradient(180deg, #fff7dc, #ffe6a0);
-  transform: scale(1.05);
-  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.32);
-}
-
-.floor--current .floor__window {
-  animation: bounce 1.1s ease-in-out infinite;
-}
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-6px);
-  }
-}
-
-.tower__badge {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 6px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--brand-dark);
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1.25;
-  z-index: 4;
-}
-
-.tower__badge strong {
-  font-size: 22px;
-}
-
-.tower__badge--light {
-  background: rgba(12, 20, 46, 0.75);
-  color: #fff;
-}
+/* (Etagen-Ansicht der alten Turm-Version – siehe .floor in tower.css) */
 
 /* ---------- Ergebnisbildschirm ---------- */
 .result {
