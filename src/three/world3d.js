@@ -37,6 +37,8 @@ export const PALETTES = {
     hair: '#c2793f',
     skin: '#ffe2cf',
     crown: '#ffd35e',
+    iris: '#5a3a1a',
+    lips: '#c9748a',
   },
   pirate: {
     wood: '#7a4f2c',
@@ -55,6 +57,12 @@ export const PALETTES = {
     skin: '#efc39b',
     pants: '#2f4a6b',
     gold: '#ffd35e',
+    hair: '#4a3320',
+    boots: '#3b2a1e',
+    beltDark: '#2b2118',
+    silver: '#c9ccd4',
+    iris: '#3a2a1a',
+    lips: '#8a5a4a',
   },
 };
 

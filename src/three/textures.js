@@ -221,3 +221,15 @@ export function makeSeaTexture(base, foam) {
   }
   return asTexture(canvas, 8, 8);
 }
+
+/** Matrosen-Streifen für Hemd und Ärmel (waagerechte Bänder). */
+export function makeStripeTexture(base, stripe, bands = 6) {
+  const [canvas, ctx] = makeCanvas(64);
+  const bh = 64 / bands;
+  for (let i = 0; i < bands; i += 1) {
+    ctx.fillStyle = i % 2 === 0 ? stripe : base;
+    ctx.fillRect(0, i * bh, 64, bh + 1);
+  }
+  return asTexture(canvas, 1, 1);
+}
+
