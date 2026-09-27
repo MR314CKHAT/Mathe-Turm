@@ -4,6 +4,22 @@ import { useFrame } from '@react-three/fiber';
 import { FLOOR_H, paletteFor, standZ } from './world3d.js';
 import { makeHeadGeometry } from './headSculpt.js';
 import {
+  RIG,
+  makeTorsoGeometry,
+  makeNeckGeometry,
+  makeUpperArmGeometry,
+  makeForearmGeometry,
+  makeHandGeometry,
+  makeThighGeometry,
+  makeShinGeometry,
+  makeFootGeometry,
+  makeSleeveGeometry,
+  makeBootShaftGeometry,
+  BODICE_NODES,
+  SHIRT_NODES,
+  VEST_NODES,
+} from './bodySculpt.js';
+import {
   makeHeadTexture,
   makeIrisTexture,
   makeLidTexture,
@@ -183,46 +199,9 @@ function Face({ palette, pirate, tex, refs }) {
   );
 }
 
-/** Hüfte, Oberschenkel, Knie, Unterschenkel, Füße – Farben je nach Kostüm. */
-function Legs({ thighColor, calfColor, footColor, tex, legL, legR }) {
-  const boot = <meshStandardMaterial color={footColor} map={tex.leather} roughness={0.65} />;
-  const leg = (side) => (
-    <group position={[side * 0.085, 0.86, 0]} ref={side < 0 ? legL : legR}>
-      <mesh position={[0, -0.17, 0]} castShadow>
-        <capsuleGeometry args={[0.06, 0.2, 5, 10]} />
-        <meshStandardMaterial map={tex.pants} roughness={0.9} />
-      </mesh>
-      <group position={[0, -0.4, 0]}>
-        <mesh castShadow>
-          <sphereGeometry args={[0.055, 10, 10]} />
-          <meshStandardMaterial color={thighColor} roughness={0.85} />
-        </mesh>
-        <mesh position={[0, -0.21, 0]} castShadow>
-          <capsuleGeometry args={[0.05, 0.18, 5, 10]} />
-          <meshStandardMaterial color={calfColor} roughness={0.85} />
-        </mesh>
-        <mesh position={[0, -0.4, 0.03]} castShadow>
-          <boxGeometry args={[0.085, 0.1, 0.17]} />
-          {boot}
-        </mesh>
-        <mesh position={[0, -0.4, 0.07]} scale={[0.9, 0.9, 1]} castShadow>
-          <sphereGeometry args={[0.048, 8, 8]} />
-          {boot}
-        </mesh>
-      </group>
-    </group>
-  );
-  return (
-    <>
-      {leg(-1)}
-      {leg(1)}
-    </>
-  );
-}
-
 /** Jungkönigin: Ballkleid, Cape, Diadehm, Hochsteckfrisur, Sommersprossen. */
-function PrincessBody({ palette, tex, refs }) {
-  const { armL, armR, head, cape, legL, legR } = refs;
+function PrincessBody({ palette, tex, geo, refs }) {
+  const { armL, armR, elbowL, elbowR, legL, legR, kneeL, kneeR, head, cape } = refs;
 
   // Kleid-Silhouette: Taille → glockiger Fall → Saum
   const skirtPoints = useMemo(
@@ -243,17 +222,19 @@ function PrincessBody({ palette, tex, refs }) {
   const dress = <meshStandardMaterial map={tex.dress} roughness={0.7} />;
   const gold = <meshStandardMaterial color={palette.crown} metalness={0.45} roughness={0.35} />;
   const skin = <meshStandardMaterial map={tex.skin} roughness={0.65} />;
+  const shoe = <meshStandardMaterial color={palette.crown} map={tex.leather} roughness={0.6} />;
 
   return (
     <>
-      {/* Hals */}
-      <mesh position={[0, 1.35, 0]} castShadow>
-        <cylinderGeometry args={[0.047, 0.052, 0.1, 12]} />
+      {/* Rumpf als ein geschlossenes Loft-Mesh + Hals */}
+      <mesh geometry={geo.torso} castShadow receiveShadow>
         {skin}
       </mesh>
-      {/* Mieder */}
-      <mesh position={[0, 1.155, 0]} castShadow>
-        <cylinderGeometry args={[0.175, 0.15, 0.31, 18]} />
+      <mesh geometry={geo.neck} castShadow>
+        {skin}
+      </mesh>
+      {/* Mieder: folgt dem Rumpf, läuft oben in den Halsansatz aus */}
+      <mesh geometry={geo.bodice} castShadow>
         {dress}
       </mesh>
       {/* Ballkleid mit Falten-Map */}
@@ -275,79 +256,61 @@ function PrincessBody({ palette, tex, refs }) {
         <meshStandardMaterial color={palette.cape} metalness={0.3} roughness={0.3} />
       </mesh>
       {/* Cape – weht beim Jubeln nach hinten */}
-      <group ref={cape} position={[0, 1.28, -0.14]} rotation={[-0.06, 0, 0]}>
-        <mesh position={[0, -0.36, -0.02]} scale={[1, 1, 0.5]} castShadow>
-          <cylinderGeometry args={[0.15, 0.3, 0.72, 20, 1, true]} />
+      <group ref={cape} position={[0, 1.36, -0.15]} rotation={[-0.06, 0, 0]}>
+        <mesh position={[0, -0.4, -0.02]} scale={[1, 1, 0.5]} castShadow>
+          <cylinderGeometry args={[0.17, 0.33, 0.8, 20, 1, true]} />
           <meshStandardMaterial map={tex.clothCape} roughness={0.85} side={THREE.DoubleSide} />
         </mesh>
       </group>
       {/* Cape-Schnalle */}
       {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.045, 1.295, 0.108]} castShadow>
+        <mesh key={s} position={[s * 0.045, 1.375, 0.11]} castShadow>
           <sphereGeometry args={[0.026, 8, 8]} />
           {gold}
         </mesh>
       ))}
-      {/* Beine (unter dem Kleid) */}
-      <Legs
-        thighColor={palette.skin}
-        calfColor={palette.skin}
-        footColor={palette.crown}
-        tex={tex}
-        legL={legL}
-        legR={legR}
-      />
-      {/* Arme: Schulter → Oberarm → Ellenbogen (leicht gebeugt) → Hand */}
-      <group ref={armL} position={[-0.2, 1.27, 0]}>
-        <mesh position={[0, -0.01, 0]} castShadow>
-          <sphereGeometry args={[0.078, 12, 12]} />
-          {dress}
-        </mesh>
-        <mesh position={[0, -0.12, 0]} castShadow>
-          <capsuleGeometry args={[0.04, 0.14, 4, 10]} />
-          {skin}
-        </mesh>
-        <group position={[0, -0.24, 0]} rotation={[-0.45, 0, 0]}>
-          <mesh position={[0, -0.11, 0]} castShadow>
-            <capsuleGeometry args={[0.037, 0.13, 4, 10]} />
+      {/* Beine: Hüftkugel → Oberschenkel → Kniekugel → Wade → Fuß */}
+      {[-1, 1].map((side) => (
+        <group key={side} ref={side < 0 ? legL : legR} position={[side * 0.085, RIG.hip, 0]}>
+          <mesh geometry={geo.thigh} castShadow>
             {skin}
           </mesh>
-          <mesh position={[0, -0.23, 0]} scale={[1, 1.1, 0.85]} castShadow>
-            <sphereGeometry args={[0.042, 10, 10]} />
-            {skin}
-          </mesh>
-          <mesh position={[0.03, -0.22, 0.015]} castShadow>
-            <sphereGeometry args={[0.017, 8, 8]} />
-            {skin}
-          </mesh>
+          <group ref={side < 0 ? kneeL : kneeR} position={[0, -RIG.thigh, 0]}>
+            <mesh geometry={geo.shin} castShadow>
+              {skin}
+            </mesh>
+            <mesh geometry={geo.foot} position={[0, -RIG.shin, 0]} castShadow>
+              {shoe}
+            </mesh>
+          </group>
         </group>
-      </group>
-      <group ref={armR} position={[0.2, 1.27, 0]}>
-        <mesh position={[0, -0.01, 0]} castShadow>
-          <sphereGeometry args={[0.078, 12, 12]} />
-          {dress}
-        </mesh>
-        <mesh position={[0, -0.12, 0]} castShadow>
-          <capsuleGeometry args={[0.04, 0.14, 4, 10]} />
-          {skin}
-        </mesh>
-        <group position={[0, -0.24, 0]} rotation={[-0.45, 0, 0]}>
-          <mesh position={[0, -0.11, 0]} castShadow>
-            <capsuleGeometry args={[0.037, 0.13, 4, 10]} />
+      ))}
+      {/* Arme: Deltakugel → Oberarm → Ellbogen → Unterarm → Hand */}
+      {[-1, 1].map((side) => (
+        <group key={side} ref={side < 0 ? armL : armR} position={[side * 0.145, RIG.shoulder, 0]}>
+          <mesh geometry={geo.upperArm} castShadow>
             {skin}
           </mesh>
-          <mesh position={[0, -0.23, 0]} scale={[1, 1.1, 0.85]} castShadow>
-            <sphereGeometry args={[0.042, 10, 10]} />
-            {skin}
-          </mesh>
-          <mesh position={[-0.03, -0.22, 0.015]} castShadow>
-            <sphereGeometry args={[0.017, 8, 8]} />
-            {skin}
-          </mesh>
+          <group
+            ref={side < 0 ? elbowL : elbowR}
+            position={[0, -RIG.upperArm, 0]}
+            rotation={[-0.22, 0, 0]}
+          >
+            <mesh geometry={geo.forearm} castShadow>
+              {skin}
+            </mesh>
+            <mesh
+              geometry={side < 0 ? geo.handL : geo.handR}
+              position={[0, -RIG.forearm, 0]}
+              castShadow
+            >
+              {skin}
+            </mesh>
+          </group>
         </group>
-      </group>
+      ))}
       {/* Kopf: geschnitztes Gesicht + Hochsteckfrisur + Diadehm */}
-      <group ref={head} position={[0, 1.34, 0]}>
+      <group ref={head} position={[0, RIG.headGroup, 0]}>
         <Face palette={palette} pirate={false} tex={tex} refs={refs} />
         {/* Hochsteck-Dutt (Kopf-Mitte liegt bei y=0.16) */}
         <mesh position={[0, 0.365, -0.1]} castShadow>
@@ -396,112 +359,107 @@ function PrincessBody({ palette, tex, refs }) {
   );
 }
 /** Piratin: Streifenhemd, Lederweste, Bandana, Narbe, Augenklappe, Haken. */
-function PirateBody({ palette, tex, refs }) {
-  const { armL, armR, head, legL, legR } = refs;
+function PirateBody({ palette, tex, geo, refs }) {
+  const { armL, armR, elbowL, elbowR, legL, legR, kneeL, kneeR, head } = refs;
 
   const shirt = <meshStandardMaterial map={tex.shirt} roughness={0.85} />;
   const skin = <meshStandardMaterial map={tex.skin} roughness={0.65} />;
-  const vest = null;
+  const vest = (
+    <meshStandardMaterial
+      color={palette.vest}
+      map={tex.leather}
+      roughness={0.6}
+      side={THREE.DoubleSide}
+    />
+  );
+  const boot = <meshStandardMaterial color={palette.boots} map={tex.leather} roughness={0.7} />;
   const belt = <meshStandardMaterial color={palette.beltDark} map={tex.leather} roughness={0.55} />;
   const gold = <meshStandardMaterial color={palette.gold} metalness={0.5} roughness={0.35} />;
+  const silver = <meshStandardMaterial color={palette.silver} metalness={0.5} roughness={0.35} />;
 
   return (
     <>
-      {/* Hals */}
-      <mesh position={[0, 1.35, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.055, 0.1, 12]} />
+      {/* Rumpf + Hals */}
+      <mesh geometry={geo.torso} castShadow receiveShadow>
         {skin}
       </mesh>
-      {/* Matrosenhemd mit Falten-Map */}
-      <mesh position={[0, 1.16, 0]} castShadow>
-        <cylinderGeometry args={[0.185, 0.16, 0.32, 18]} />
+      <mesh geometry={geo.neck} castShadow>
+        {skin}
+      </mesh>
+      {/* Hemd und Weste als Shells direkt auf dem Rumpf */}
+      <mesh geometry={geo.shirt} castShadow>
         {shirt}
       </mesh>
-      {/* Offene Lederweste (Vorderlücke zeigt das Hemd) */}
-      <mesh position={[0, 1.15, 0]} castShadow>
-        <cylinderGeometry args={[0.196, 0.172, 0.34, 20, 1, true, 0.55, Math.PI * 2 - 1.1]} />
-        <meshStandardMaterial color={palette.vest} map={tex.leather} roughness={0.6} side={THREE.DoubleSide} />
+      <mesh geometry={geo.vest} castShadow>
+        {vest}
       </mesh>
-      {/* Kragen */}
-      <mesh position={[0, 1.325, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <torusGeometry args={[0.065, 0.018, 8, 24]} />
-        <meshStandardMaterial color={palette.shirt} roughness={0.85} />
-      </mesh>
-      {/* Gürtel mit Gold-Schnalle */}
-      <mesh position={[0, 0.99, 0]} castShadow>
-        <cylinderGeometry args={[0.168, 0.168, 0.06, 18]} />
+      {/* Gürtel mit Gold-Schnalle (liegt über dem Hemd) */}
+      <mesh position={[0, 0.98, 0]} scale={[1, 1, 0.74]} castShadow>
+        <cylinderGeometry args={[0.162, 0.166, 0.07, 24]} />
         {belt}
       </mesh>
-      <mesh position={[0, 0.99, 0.17]} castShadow>
+      <mesh position={[0, 0.98, 0.125]} castShadow>
         <boxGeometry args={[0.07, 0.055, 0.02]} />
         {gold}
       </mesh>
-      {/* Hüfte / Hosenbund */}
-      <mesh position={[0, 0.945, 0]} scale={[1.05, 0.62, 0.9]} castShadow>
-        <sphereGeometry args={[0.165, 16, 14]} />
-        <meshStandardMaterial map={tex.pants} roughness={0.85} />
-      </mesh>
-      {/* Beine: Hose + Stiefel */}
-      <Legs
-        thighColor={palette.pants}
-        calfColor={palette.boots}
-        footColor={palette.beltDark}
-        tex={tex}
-        legL={legL}
-        legR={legR}
-      />
-      {/* Arme: Schulter → Streifenärmel → Ellenbogen → Hand / Haken */}
-      <group ref={armL} position={[-0.195, 1.27, 0]}>
-        <mesh position={[0, -0.01, 0]} castShadow>
-          <sphereGeometry args={[0.068, 12, 12]} />
-          {shirt}
-        </mesh>
-        <mesh position={[0, -0.12, 0]} castShadow>
-          <cylinderGeometry args={[0.05, 0.046, 0.2, 14]} />
-          {shirt}
-        </mesh>
-        <group position={[0, -0.24, 0]} rotation={[-0.45, 0, 0]}>
-          <mesh position={[0, -0.11, 0]} castShadow>
-            <capsuleGeometry args={[0.037, 0.13, 4, 10]} />
-            {skin}
+      {/* Beine: Hose bis zum Knie, Stiefel mit Schaft über der Wade */}
+      {[-1, 1].map((side) => (
+        <group key={side} ref={side < 0 ? legL : legR} position={[side * 0.085, RIG.hip, 0]}>
+          <mesh geometry={geo.thigh} castShadow>
+            <meshStandardMaterial map={tex.pants} roughness={0.9} />
           </mesh>
-          <mesh position={[0, -0.23, 0]} scale={[1, 1.1, 0.85]} castShadow>
-            <sphereGeometry args={[0.042, 10, 10]} />
-            {skin}
-          </mesh>
-          <mesh position={[0.03, -0.22, 0.015]} castShadow>
-            <sphereGeometry args={[0.017, 8, 8]} />
-            {skin}
-          </mesh>
+          <group ref={side < 0 ? kneeL : kneeR} position={[0, -RIG.thigh, 0]}>
+            <mesh geometry={geo.shin} castShadow>
+              {skin}
+            </mesh>
+            <mesh geometry={geo.bootShaft} position={[0, -RIG.shin, 0]} castShadow>
+              {boot}
+            </mesh>
+            <mesh geometry={geo.foot} position={[0, -RIG.shin, 0]} castShadow>
+              {boot}
+            </mesh>
+          </group>
         </group>
-      </group>
-      <group ref={armR} position={[0.195, 1.27, 0]}>
-        <mesh position={[0, -0.01, 0]} castShadow>
-          <sphereGeometry args={[0.068, 12, 12]} />
-          {shirt}
-        </mesh>
-        <mesh position={[0, -0.12, 0]} castShadow>
-          <cylinderGeometry args={[0.05, 0.046, 0.2, 14]} />
-          {shirt}
-        </mesh>
-        <group position={[0, -0.24, 0]} rotation={[-0.45, 0, 0]}>
-          <mesh position={[0, -0.11, 0]} castShadow>
-            <capsuleGeometry args={[0.037, 0.13, 4, 10]} />
-            {skin}
+      ))}
+      {/* Arme: kurzer Streifenärmel, nackter Unterarm, Haken rechts */}
+      {[-1, 1].map((side) => (
+        <group key={side} ref={side < 0 ? armL : armR} position={[side * 0.145, RIG.shoulder, 0]}>
+          <mesh geometry={geo.sleeve} castShadow>
+            {shirt}
           </mesh>
-          {/* Silberner Haken statt Hand */}
-          <mesh position={[0, -0.26, 0]} castShadow>
-            <cylinderGeometry args={[0.017, 0.017, 0.12, 10]} />
-            <meshStandardMaterial color={palette.silver} metalness={0.5} roughness={0.35} />
-          </mesh>
-          <mesh position={[0.042, -0.32, 0]} rotation={[0, 0, Math.PI]} castShadow>
-            <torusGeometry args={[0.042, 0.014, 6, 16, Math.PI]} />
-            <meshStandardMaterial color={palette.silver} metalness={0.5} roughness={0.35} />
-          </mesh>
+          <group
+            ref={side < 0 ? elbowL : elbowR}
+            position={[0, -RIG.upperArm, 0]}
+            rotation={[-0.22, 0, 0]}
+          >
+            <mesh geometry={geo.forearm} castShadow>
+              {skin}
+            </mesh>
+            {side < 0 ? (
+              <mesh
+                geometry={geo.handL}
+                position={[0, -RIG.forearm, 0]}
+                castShadow
+              >
+                {skin}
+              </mesh>
+            ) : (
+              <group position={[0, -RIG.forearm, 0]}>
+                <mesh position={[0, -0.05, 0]} castShadow>
+                  <cylinderGeometry args={[0.017, 0.017, 0.12, 10]} />
+                  {silver}
+                </mesh>
+                <mesh position={[0.042, -0.11, 0]} rotation={[0, 0, Math.PI]} castShadow>
+                  <torusGeometry args={[0.042, 0.014, 6, 16, Math.PI]} />
+                  {silver}
+                </mesh>
+              </group>
+            )}
+          </group>
         </group>
-      </group>
+      ))}
       {/* Kopf: geschnitztes Gesicht + gemusterte Bandana + Narbe (in der Map) */}
-      <group ref={head} position={[0, 1.34, 0]}>
+      <group ref={head} position={[0, RIG.headGroup, 0]}>
         <Face palette={palette} pirate tex={tex} refs={refs} />
         {/* Bandana-Kuppel (Kopf-Mitte bei y=0.16) */}
         <mesh position={[0, 0.275, 0.01]} scale={[1, 0.6, 1.02]} castShadow>
@@ -607,6 +565,45 @@ export default function Character3D({ floor = 0, theme = 'princess', mood = 'idl
       pants: makeSkinTexture(p.skin, 0),
     };
   }, [theme, palette]);
+  // Körper-Geometrien (einmalig gebaut): Rumpf, Hals und Kleidungs-Shells
+  // liegen schon in Weltkoordinaten, die Gliedmaßen bleiben pivot-lokal
+  // (Ursprung = Schulter / Ellbogen / Hüfte / Knie).
+  const geo = useMemo(() => {
+    const torso = makeTorsoGeometry();
+    torso.translate(0, RIG.hip, 0);
+    const neck = makeNeckGeometry();
+    neck.translate(0, 1.4, 0);
+    const base = {
+      torso,
+      neck,
+      upperArm: makeUpperArmGeometry(),
+      forearm: makeForearmGeometry(),
+      handL: makeHandGeometry(-1),
+      handR: makeHandGeometry(1),
+      thigh: makeThighGeometry(),
+      shin: makeShinGeometry(),
+      foot: makeFootGeometry(),
+    };
+    if (theme === 'pirate') {
+      const shirt = makeTorsoGeometry({ nodes: SHIRT_NODES, yStart: 0.1, yEnd: 0.625 });
+      shirt.translate(0, RIG.hip + 0.1, 0);
+      const vest = makeTorsoGeometry({
+        nodes: VEST_NODES, yStart: 0.18, yEnd: 0.62, gap: 1.0,
+      });
+      vest.translate(0, RIG.hip + 0.18, 0);
+      return {
+        ...base,
+        shirt,
+        vest,
+        sleeve: makeSleeveGeometry(),
+        bootShaft: makeBootShaftGeometry(),
+      };
+    }
+    const bodice = makeTorsoGeometry({ nodes: BODICE_NODES, yStart: 0.14, yEnd: 0.61 });
+    bodice.translate(0, RIG.hip + 0.14, 0);
+    return { ...base, bodice };
+  }, [theme]);
+
   const root = useRef();
   const body = useRef();
   const head = useRef();
@@ -614,6 +611,10 @@ export default function Character3D({ floor = 0, theme = 'princess', mood = 'idl
   const armR = useRef();
   const legL = useRef();
   const legR = useRef();
+  const kneeL = useRef();
+  const kneeR = useRef();
+  const elbowL = useRef();
+  const elbowR = useRef();
   const cape = useRef();
   const mouthLine = useRef();
   const browL = useRef();
@@ -625,7 +626,7 @@ export default function Character3D({ floor = 0, theme = 'princess', mood = 'idl
   const eyeL = useRef();
   const eyeR = useRef();
   const refs = {
-    armL, armR, head, cape, legL, legR,
+    armL, armR, elbowL, elbowR, legL, legR, kneeL, kneeR, head, cape,
     mouthLine, browL, browR, lidUL, lidUR, lidLL, lidLR, eyeL, eyeR,
   };
 
@@ -757,11 +758,24 @@ export default function Character3D({ floor = 0, theme = 'princess', mood = 'idl
       );
     }
 
-    // Beine: Kletter-Schritt + beim Jubeln angezogen
+    // Beine: Kletter-Schritt, Knie beugt dabei nach hinten, Jubel winkelt an
     if (legL.current && legR.current) {
       const tuck = a.cheer * Math.abs(Math.sin(t * 9)) * 0.5;
       legL.current.rotation.x = damp(legL.current.rotation.x, step - tuck, 10, dt);
       legR.current.rotation.x = damp(legR.current.rotation.x, -step - tuck, 10, dt);
+      if (kneeL.current && kneeR.current) {
+        const bendL = Math.max(0, -step) * 0.7 + tuck;
+        const bendR = Math.max(0, step) * 0.7 + tuck;
+        kneeL.current.rotation.x = damp(kneeL.current.rotation.x, bendL, 10, dt);
+        kneeR.current.rotation.x = damp(kneeR.current.rotation.x, bendR, 10, dt);
+      }
+    }
+
+    // Ellenbogen: leicht gebeugt, beim Klettern stärker
+    if (elbowL.current && elbowR.current) {
+      const bend = -0.22 - a.cheer * 0.2 + climb * 0.5;
+      elbowL.current.rotation.x = damp(elbowL.current.rotation.x, bend, 9, dt);
+      elbowR.current.rotation.x = damp(elbowR.current.rotation.x, bend, 9, dt);
     }
 
     // Cape weht beim Jubeln nach hinten
@@ -803,9 +817,9 @@ export default function Character3D({ floor = 0, theme = 'princess', mood = 'idl
       {/* Figur */}
       <group ref={body} position={[0, 0, stand]}>
         {pirate ? (
-          <PirateBody palette={palette} tex={tex} refs={refs} />
+          <PirateBody palette={palette} tex={tex} geo={geo} refs={refs} />
         ) : (
-          <PrincessBody palette={palette} tex={tex} refs={refs} />
+          <PrincessBody palette={palette} tex={tex} geo={geo} refs={refs} />
         )}
       </group>
     </group>
