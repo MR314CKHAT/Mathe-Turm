@@ -38,9 +38,68 @@
       content="Rechne dich im Hochhaus nach oben – für Kinder der Klasse 1 bis 5."
     />
     <meta name="twitter:image" content="og-image.png" />
+
+    <!-- Wenn JavaScript noch nicht lädt: kleiner Lade-Hinweis statt weißem Bildschirm.
+         React ersetzt diesen Inhalt beim Start automatisch. -->
+    <style>
+      .boot {
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+        color: #1f2937;
+        text-align: center;
+        padding: 24px;
+      }
+      .boot__emoji {
+        font-size: 56px;
+        animation: boot-bob 1.4s ease-in-out infinite;
+      }
+      .boot__title {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+      }
+      .boot__hint {
+        font-size: 15px;
+        color: #55627a;
+      }
+      @keyframes boot-bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot__emoji {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot">
+        <span class="boot__emoji">🏢</span>
+        <p class="boot__title">Mathe-Turm</p>
+        <span class="boot__hint">Der Turm wird gerade gebaut …</span>
+      </div>
+    </div>
+    <noscript>
+      <div class="boot">
+        <span class="boot__emoji">🧱</span>
+        <p class="boot__title">JavaScript wird gebraucht</p>
+        <span class="boot__hint">
+          Bitte aktiviere JavaScript in deinem Browser, damit der Mathe-Turm läuft.
+        </span>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

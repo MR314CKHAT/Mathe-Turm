@@ -841,6 +841,54 @@ body {
 
 /* (Etagen-Ansicht der alten Turm-Version – siehe .floor in tower.css) */
 
+/* ---------- Fehleranzeige (ErrorBoundary) ---------- */
+.crashbox {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px 26px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.crashbox__emoji {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.crashbox__title {
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--brand-dark);
+}
+
+.crashbox__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.crashbox__detail {
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f6f8ff;
+  color: var(--ink-soft);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
 /* ---------- Ergebnisbildschirm ---------- */
 .result {
   max-width: 720px;

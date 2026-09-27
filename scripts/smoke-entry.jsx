@@ -3,6 +3,7 @@ import StartScreen from '../src/components/StartScreen.jsx';
 import GameScreen from '../src/components/GameScreen.jsx';
 import ResultScreen from '../src/components/ResultScreen.jsx';
 import Tower from '../src/components/Tower.jsx';
+import ErrorBoundary from '../src/ErrorBoundary.jsx';
 
 const noop = () => {};
 
@@ -75,6 +76,15 @@ const towerHtml = renderToString(<Tower floor={7} />);
 expect('Tower markiert das aktuelle Stockwerk', towerHtml.includes('floor--current'));
 expect('Tower hebt Checkpoint-Etagen (alle 5) hervor', towerHtml.includes('floor--checkpoint'));
 expect('Tower zeichnet Stockwerke', (towerHtml.match(/class="floor/g) || []).length >= 14);
+
+// --- ErrorBoundary ---
+const boundaryHtml = renderToString(
+  <ErrorBoundary>
+    <div className="mock-child">Alles gut</div>
+  </ErrorBoundary>
+);
+expect('ErrorBoundary leitet normale Inhalte durch', boundaryHtml.includes('Alles gut'));
+expect('ErrorBoundary zeigt im Fehlerfall die Notfall-Karte', ErrorBoundary.name === 'ErrorBoundary');
 
 // --- ResultScreen ---
 const resultHtml = renderToString(
